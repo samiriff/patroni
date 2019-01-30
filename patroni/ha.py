@@ -206,12 +206,15 @@ class Ha(object):
             return self.dcs.touch_member(data)
 
     def clone(self, clone_member=None, msg='(without leader)'):
+        logger.info("inside clone in ha")
         if self.state_handler.clone(clone_member):
+            logger.info("clone success")
             logger.info('bootstrapped %s', msg)
             cluster = self.dcs.get_cluster()
             node_to_follow = self._get_node_to_follow(cluster)
             return self.state_handler.follow(node_to_follow)
         else:
+            logger.info("clone failed")
             logger.error('failed to bootstrap %s', msg)
             self.state_handler.remove_data_directory()
 

@@ -652,11 +652,14 @@ class Postgresql(object):
             loop through all methods the user supplies
         """
 
+        logger.info("setting state")
         self.set_state('creating replica')
         self._sysid = None
 
         is_remote_master = isinstance(clone_member, RemoteMember)
+        logger.info("is remote master %s",is_remote_master)
         create_replica_methods = is_remote_master and clone_member.create_replica_methods
+        logger.info(create_replica_methods)
 
         # get list of replica methods either from clone member or from
         # the config. If there is no configuration key, or no value is
@@ -667,11 +670,15 @@ class Postgresql(object):
             or ['basebackup']
         )
 
+        logger.info(replica_methods)
+
         if clone_member and clone_member.conn_url:
             r = clone_member.conn_kwargs(self._replication)
             connstring = 'postgres://{user}@{host}:{port}/{database}'.format(**r)
+            logger.info(connstring)
             # add the credentials to connect to the replica origin to pgpass.
             env = self.write_pgpass(r)
+            log.info(env)
         else:
             connstring = ''
             env = os.environ.copy()
@@ -1652,10 +1659,17 @@ $$""".format(name, ' '.join(options)), name, password, password)
                base backup)
         """
 
+        logger.info("starting create rep")
         ret = self.create_replica(clone_member) == 0
+        logger.info("after create replica")
+        logger.info(ret)
         if ret:
+            logger.info("before post restore")
             self._post_restore()
+            logger.info("after post restore")
+            logger.info("before config server params")
             self._configure_server_parameters()
+            logger.info("after conf server params")
         return ret
 
     def bootstrap(self, config):
