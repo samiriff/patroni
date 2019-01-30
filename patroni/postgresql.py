@@ -1748,21 +1748,30 @@ $$""".format(name, ' '.join(options)), name, password, password)
         # tries twice, then returns failure (as 1)
         # uses "stream" as the xlog-method to avoid sync issues
         # supports additional user-supplied options, those are not validated
-        maxfailures = 2
+        logger.info(conn_url)
+        logger.info(env)
+        logger.info(options)
+        maxfailures = 5
         ret = 1
         not_allowed_options = ('pgdata', 'format', 'wal-method', 'xlog-method', 'gzip',
                                'version', 'compress', 'dbname', 'host', 'port', 'username', 'password')
         user_options = self.process_user_options('basebackup', options, not_allowed_options, logger.error)
+        logger.info(user_options)
 
         for bbfailures in range(0, maxfailures):
             with self._cancellable_lock:
                 if self._is_cancelled:
                     break
             if not self.data_directory_empty():
+                logger.info("data dir not empty")
                 self.remove_data_directory()
             try:
+                logger.info([self._pgcommand('pg_basebackup'), '--pgdata=' + self._data_dir,
+                                                       '-X', 'stream', '--dbname=' + conn_url] + user_options)
+                logger.info(env)
                 ret = self.cancellable_subprocess_call([self._pgcommand('pg_basebackup'), '--pgdata=' + self._data_dir,
                                                        '-X', 'stream', '--dbname=' + conn_url] + user_options, env=env)
+                logger.info(ret)
                 if ret == 0:
                     break
                 else:

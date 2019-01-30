@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [[ $UID -ge 10000 ]]; then
-    GID=$(id -g)
-    sed -e "s/^postgres:x:[^:]*:[^:]*:/postgres:x:$UID:$GID:/" /etc/passwd > /tmp/passwd
-    cat /tmp/passwd > /etc/passwd
-    rm /tmp/passwd
-fi
-
 cat > /home/postgres/patroni.yml <<__EOF__
 bootstrap:
   dcs:
@@ -20,20 +13,27 @@ bootstrap:
   - data-checksums
   pg_hba:
   - host all all 0.0.0.0/0 md5
-  - host replication ${PATRONI_REPLICATION_USERNAME} ${PATRONI_KUBERNETES_POD_IP}/16 md5
+  - host replication ${PATRONI_REPLICATION_USERNAME} ${POD_IP}/16    md5
 restapi:
-  connect_address: '${PATRONI_KUBERNETES_POD_IP}:8008'
+  connect_address: '${POD_IP}:8008'
 postgresql:
-  connect_address: '${PATRONI_KUBERNETES_POD_IP}:5432'
+  connect_address: '${POD_IP}:5432'
   authentication:
     superuser:
       password: '${PATRONI_SUPERUSER_PASSWORD}'
     replication:
       password: '${PATRONI_REPLICATION_PASSWORD}'
+  callbacks:
+    on_start: /callback.py
+    on_stop: /callback.py
+    on_role_change: /callback.py
 __EOF__
+
+chown -R postgres:postgres /home/postgres/patroni.yml
+chown -R postgres:postgres /home/postgres/pgdata
 
 unset PATRONI_SUPERUSER_PASSWORD PATRONI_REPLICATION_PASSWORD
 export KUBERNETES_NAMESPACE=$PATRONI_KUBERNETES_NAMESPACE
 export POD_NAME=$PATRONI_NAME
 
-exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
+exec su postgres -c "PATH=$PATH exec usr/bin/python /usr/local/bin/patroni /home/postgres/patroni.yml"
