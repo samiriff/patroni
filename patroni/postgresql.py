@@ -671,6 +671,8 @@ class Postgresql(object):
         )
 
         logger.info(replica_methods)
+        logger.info(["clone_member",clone_member])
+        logger.info(clone_member.conn_url)
 
         if clone_member and clone_member.conn_url:
             r = clone_member.conn_kwargs(self._replication)
@@ -682,15 +684,18 @@ class Postgresql(object):
         else:
             connstring = ''
             env = os.environ.copy()
+            logger.info(env)
             # if we don't have any source, leave only replica methods that work without it
             replica_methods = \
                 [r for r in replica_methods if self.replica_method_can_work_without_replication_connection(r)]
 
         # go through them in priority order
         ret = 1
+        logger.info(["replica_methods", replica_methods])
         for replica_method in replica_methods:
             with self._cancellable_lock:
                 if self._is_cancelled:
+                    logger.info("Cancelled")
                     break
             # if the method is basebackup, then use the built-in
             if replica_method == "basebackup":
