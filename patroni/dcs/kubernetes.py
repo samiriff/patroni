@@ -196,7 +196,11 @@ class Kubernetes(AbstractDCS):
                 member = Member(-1, leader, None, {})
                 logger.info(member)
                 member = ([m for m in members if m.name == leader] or [member])[0]
+                logger.info("members")
+                logger.info(members)
                 leader = Leader(response.metadata.resource_version, None, member)
+                logger.info("leader")
+                logger.info(leader)
 
             # failover key
             failover = nodes.get(self.failover_path)
