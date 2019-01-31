@@ -131,7 +131,7 @@ class Ha(object):
         self.cluster = cluster
         logger.info(cluster)
 
-        logger.info([self.cluster.is_unlocked(),self.cluster.leader.name,self.state_handler.name])
+        logger.info([self.cluster.is_unlocked()])
         if self.cluster.is_unlocked() or self.cluster.leader.name != self.state_handler.name:
             self.set_is_leader(False)
 
