@@ -138,6 +138,9 @@ class Kubernetes(AbstractDCS):
         try:
             # get list of members
             response = self.retry(self._api.list_namespaced_pod, self._namespace, label_selector=self._label_selector)
+            logger.info("response")
+            logger.info(response)
+            logger.info([self._api.list_namespaced_pod, self._namespace, self._label_selector])
             members = [self.member(pod) for pod in response.items]
 
             response = self.retry(self._api.list_namespaced_kind, self._namespace, label_selector=self._label_selector)
