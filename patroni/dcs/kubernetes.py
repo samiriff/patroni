@@ -165,13 +165,19 @@ class Kubernetes(AbstractDCS):
             self._leader_observed_subsets = leader.subsets if self.__subsets and leader and leader.subsets else []
             annotations = metadata and metadata.annotations or {}
 
+            logger.info("kubernetes dcs metadata")
+            logger.info(metadata)
+            logger.info("kubernetes dcs annotations")
+            logger.info(annotations)
             # get last leader operation
             last_leader_operation = annotations.get(self._OPTIME)
             last_leader_operation = 0 if last_leader_operation is None else int(last_leader_operation)
-
             # get leader
             leader_record = {n: annotations.get(n) for n in (self._LEADER, 'acquireTime',
                              'ttl', 'renewTime', 'transitions') if n in annotations}
+
+            logger.info("kubernetes dcs annotations leader_record")
+            logger.info(leader_record)
             if (leader_record or self._leader_observed_record) and leader_record != self._leader_observed_record:
                 self._leader_observed_record = leader_record
                 self._leader_observed_time = time.time()
@@ -185,8 +191,10 @@ class Kubernetes(AbstractDCS):
             if not metadata or not self._leader_observed_time or self._leader_observed_time + ttl < time.time():
                 leader = None
 
+            logger.info(leader)
             if metadata:
                 member = Member(-1, leader, None, {})
+                logger.info(member)
                 member = ([m for m in members if m.name == leader] or [member])[0]
                 leader = Leader(response.metadata.resource_version, None, member)
 
