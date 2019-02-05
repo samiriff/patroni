@@ -91,8 +91,11 @@ class Kubernetes(AbstractDCS):
 
         self.__subsets = None
         use_endpoints = config.get('use_endpoints') and (config.get('patronictl') or 'pod_ip' in config)
+        logger.info("use_endpoints")
+        logger.info(use_endpoints)
         if use_endpoints:
             addresses = [k8s_client.V1EndpointAddress(ip=config['pod_ip'])]
+            logger.info(addressess)
             ports = []
             for p in config.get('ports', [{}]):
                 port = {'port': int(p.get('port', '5432'))}
@@ -270,6 +273,8 @@ class Kubernetes(AbstractDCS):
     @catch_kubernetes_errors
     def patch_or_create(self, name, annotations, resource_version=None, patch=False, retry=True, subsets=None):
         metadata = {'namespace': self._namespace, 'name': name, 'labels': self._labels, 'annotations': annotations}
+        logger.info("metadata initial")
+        logger.info(metadata)
         if patch or resource_version:
             if resource_version is not None:
                 metadata['resource_version'] = resource_version
@@ -279,13 +284,20 @@ class Kubernetes(AbstractDCS):
             # skip annotations with null values
             metadata['annotations'] = {k: v for k, v in metadata['annotations'].items() if v is not None}
 
+        logger.info("metadata after patch check")
+        logger.info(metadata)
+
         metadata = k8s_client.V1ObjectMeta(**metadata)
         if subsets is not None and self.__subsets:
+            logger.info("adding to endpoint")
             endpoints = {'metadata': metadata}
             if self.subsets_changed(self._leader_observed_subsets, subsets):
                 endpoints['subsets'] = subsets
+            logger.info(endpoints)
             body = k8s_client.V1Endpoints(**endpoints)
+            logger.info(body)
         else:
+            logger.info("adding to config map")
             body = k8s_client.V1ConfigMap(metadata=metadata)
         return self.retry(func, self._namespace, body) if retry else func(self._namespace, body)
 
