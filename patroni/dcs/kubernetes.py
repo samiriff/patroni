@@ -142,8 +142,6 @@ class Kubernetes(AbstractDCS):
             # get list of members
             response = self.retry(self._api.list_namespaced_pod, self._namespace, label_selector=self._label_selector)
             logger.info("response")
-            logger.info(response)
-            logger.info([self._api.list_namespaced_pod, self._namespace, self._label_selector])
             members = [self.member(pod) for pod in response.items]
 
             response = self.retry(self._api.list_namespaced_kind, self._namespace, label_selector=self._label_selector)
@@ -274,7 +272,6 @@ class Kubernetes(AbstractDCS):
     def patch_or_create(self, name, annotations, resource_version=None, patch=False, retry=True, subsets=None):
         metadata = {'namespace': self._namespace, 'name': name, 'labels': self._labels, 'annotations': annotations}
         logger.info("metadata initial")
-        logger.info(metadata)
         if patch or resource_version:
             if resource_version is not None:
                 metadata['resource_version'] = resource_version
@@ -285,7 +282,6 @@ class Kubernetes(AbstractDCS):
             metadata['annotations'] = {k: v for k, v in metadata['annotations'].items() if v is not None}
 
         logger.info("metadata after patch check")
-        logger.info(metadata)
 
         metadata = k8s_client.V1ObjectMeta(**metadata)
         if subsets is not None and self.__subsets:

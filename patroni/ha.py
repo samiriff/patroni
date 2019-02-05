@@ -129,9 +129,7 @@ class Ha(object):
         if not cluster.is_unlocked() or not self.old_cluster:
             self.old_cluster = cluster
         self.cluster = cluster
-        logger.info(cluster)
 
-        logger.info([self.cluster.is_unlocked()])
         if self.cluster.is_unlocked() or self.cluster.leader.name != self.state_handler.name:
             self.set_is_leader(False)
 
@@ -208,7 +206,6 @@ class Ha(object):
             return self.dcs.touch_member(data)
 
     def clone(self, clone_member=None, msg='(without leader)'):
-        logger.info("inside clone in ha")
         if self.state_handler.clone(clone_member):
             logger.info("clone success")
             logger.info('bootstrapped %s', msg)
@@ -224,7 +221,6 @@ class Ha(object):
         if not self.cluster.is_unlocked():  # cluster already has leader
             logger.info("cluster already has a leader")
             clone_member = self.cluster.get_clone_member(self.state_handler.name)
-            logger.info(clone_member)
             member_role = 'leader' if clone_member == self.cluster.leader else 'replica'
             msg = "from {0} '{1}'".format(member_role, clone_member.name)
             self._async_executor.schedule('bootstrap {0}'.format(msg))

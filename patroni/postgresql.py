@@ -680,7 +680,6 @@ class Postgresql(object):
             logger.info(connstring)
             # add the credentials to connect to the replica origin to pgpass.
             env = self.write_pgpass(r)
-            log.info(env)
         else:
             connstring = ''
             env = os.environ.copy()

@@ -36,9 +36,18 @@ class CoreV1Api(k8s_client.CoreV1Api):
 
 def patch_master_endpoint(api, namespace, cluster):
     addresses = [k8s_client.V1EndpointAddress(ip=os.environ['POD_IP'])]
+    logger.info("from callback addresses")
+    logger.info(addresses)
     ports = [k8s_client.V1EndpointPort(port=5432)]
+    logger.info("from callback ports")
+    logger.info(ports)
     subsets = [k8s_client.V1EndpointSubset(addresses=addresses, ports=ports)]
+    logger.info("from callback subsets")
+    logger.info(subsets)
     body = k8s_client.V1Endpoints(subsets=subsets)
+    logger.info("from callback body")
+    logger.info([cluster,namespace,body])
+
     return api.patch_namespaced_endpoints(cluster, namespace, body)
 
 
@@ -53,7 +62,8 @@ def main():
     k8s_api = CoreV1Api()
 
     namespace = os.environ['KUBERNETES_NAMESPACE']
-
+    logger.info("from callback ns")
+    logger.info(namespace)
     if role == 'master' and action in ('on_start', 'on_role_change'):
         patch_master_endpoint(k8s_api, namespace, cluster)
 
