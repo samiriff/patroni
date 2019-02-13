@@ -4,6 +4,12 @@ cat > /home/postgres/patroni.yml <<__EOF__
 bootstrap:
   dcs:
     postgresql:
+      parameters:
+        log_destination: stderr
+        logging_collector: off
+        log_min_messages: info
+        log_min_error_statement: error
+        log_min_duration_statement: 0
       use_pg_rewind: true
   initdb:
   - auth-host: md5
@@ -23,6 +29,12 @@ postgresql:
       password: '${PATRONI_SUPERUSER_PASSWORD}'
     replication:
       password: '${PATRONI_REPLICATION_PASSWORD}'
+  parameters:
+    log_destination: stderr
+    logging_collector: off
+    log_min_messages: info
+    log_min_error_statement: error
+    log_min_duration_statement: 0
   callbacks:
     on_start: /callback.py
     on_stop: /callback.py
