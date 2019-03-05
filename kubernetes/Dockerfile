@@ -10,8 +10,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && pip install setuptools \
     && pip install 'git+https://github.com/smjn/patroni.git#egg=patroni[kubernetes]' \
-    && mkdir -p /home/postgres \
-    && chown -R postgres:postgres /home/postgres \
+    && mkdir -p /var/lib/postgresql/pgdata \
+    && chown -R postgres:postgres /var/lib/postgresql \
     # Clean up
     && apt-get remove -y git python-pip python-setuptools \
     && apt-get autoremove -y \
@@ -20,6 +20,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 ADD entrypoint.sh callback.py /
 EXPOSE 5432 8008
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-USER 999 # Need to specify UID(999) instead of Username(postgres) since Kubernetes security policy throws an error if the user is non-numeric
+# Need to specify UID(999) instead of Username(postgres) since Kubernetes security policy throws an error if the user is non-numeric
+USER 999
+
 # WORKDIR /home/postgres
 CMD ["/bin/bash", "/entrypoint.sh"]

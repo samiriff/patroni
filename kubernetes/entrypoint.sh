@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat > /home/postgres/patroni.yml <<__EOF__
+cat > /var/lib/postgresql/patroni.yml <<__EOF__
 bootstrap:
   dcs:
     postgresql:
@@ -41,11 +41,8 @@ postgresql:
     on_role_change: /callback.py
 __EOF__
 
-chown -R postgres:postgres /home/postgres/patroni.yml
-chown -R postgres:postgres /home/postgres/pgdata
-
 unset PATRONI_SUPERUSER_PASSWORD PATRONI_REPLICATION_PASSWORD
 export KUBERNETES_NAMESPACE=$PATRONI_KUBERNETES_NAMESPACE
 export POD_NAME=$PATRONI_NAME
 
-exec /usr/bin/python /usr/local/bin/patroni /home/postgres/patroni.yml
+exec /usr/bin/python /usr/local/bin/patroni /var/lib/postgresql/patroni.yml
