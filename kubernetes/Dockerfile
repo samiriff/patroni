@@ -20,6 +20,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 ADD entrypoint.sh callback.py /
 EXPOSE 5432 8008
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-# USER postgres
+USER 999 # Need to specify UID(999) instead of Username(postgres) since Kubernetes security policy throws an error if the user is non-numeric
 # WORKDIR /home/postgres
 CMD ["/bin/bash", "/entrypoint.sh"]
