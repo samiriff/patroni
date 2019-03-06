@@ -10,8 +10,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && pip install setuptools \
     && pip install 'git+https://github.com/smjn/patroni.git#egg=patroni[kubernetes]' \
-    && mkdir -p /var/lib/postgresql/pgdata \
-    && chown -R postgres:postgres /var/lib/postgresql \
+    && mkdir -p /home/postgres \
+    && chown -R postgres:postgres /home/postgres \
     # Clean up
     && apt-get remove -y git python-pip python-setuptools \
     && apt-get autoremove -y \

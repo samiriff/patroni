@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat > /var/lib/postgresql/patroni.yml <<__EOF__
+cat > /home/postgres/patroni.yml <<__EOF__
 bootstrap:
   dcs:
     postgresql:
@@ -45,4 +45,4 @@ unset PATRONI_SUPERUSER_PASSWORD PATRONI_REPLICATION_PASSWORD
 export KUBERNETES_NAMESPACE=$PATRONI_KUBERNETES_NAMESPACE
 export POD_NAME=$PATRONI_NAME
 
-exec /usr/bin/python /usr/local/bin/patroni /var/lib/postgresql/patroni.yml
+exec /usr/bin/python /usr/local/bin/patroni /home/postgres/patroni.yml
